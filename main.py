@@ -143,21 +143,38 @@ def data():
 def sanction():
     temp = list(db.execute("SELECT * FROM data WHERE sanction_id is NULL"))
     print(temp)
+
+    offices = {"All"}
+    head = {"All"}
+    for row in temp:
+        offices.add(row[3])
+        head.add(row[6])
+    
+    print(offices)
+    print(head)
     
     def post():
-        for i in range(len(temp)):
-            print(IntVar(temp[i][0]).get())
+        pass
 
     root = Tk()
+    
+    var_office = StringVar(root)
+    var_office.set("All")
+    var_head = StringVar(root)
+    var_head.set("All")
+    OptionMenu(root, var_office, *offices).grid(row=1, column=1)
+    OptionMenu(root, var_head, *head).grid(row=1, column=2)
+
     for i in range(len(temp)):
         for j in range(len(temp[0])-1):
-            if j==0:
-                Checkbutton(root,text=temp[i][j], height=2, variable=temp[i][j]).grid(row=i, column=j)
-            else:
-                data = Listbox(root, height=2)
-                data.grid(row=i, column= j)
-                data.insert(END, temp[i][j])
-    Button(root, text="Submit", command=post).grid(row=i+1)
+            if var_office.get() == temp[i][3]:
+                if j==0:
+                    Checkbutton(root,text=temp[i][j], height=2, variable=temp[i][j]).grid(row=i+2, column=j)
+                else:
+                    data = Listbox(root, height=2)
+                    data.grid(row=i+2, column= j)
+                    data.insert(END, temp[i][j])
+    Button(root, text="Submit", command=post).grid(row=i+3)
     root.mainloop()
 
 def reports():
