@@ -142,17 +142,12 @@ def data():
 
 def sanction():
     temp = list(db.execute("SELECT * FROM data WHERE sanction_id is NULL"))
-    print(temp)
-
     offices = {"All"}
     head = {"All"}
     for row in temp:
         offices.add(row[3])
         head.add(row[6])
-    
-    print(offices)
-    print(head)
-    
+
     def post():
         pass
 
@@ -163,18 +158,39 @@ def sanction():
     var_head = StringVar(root)
     var_head.set("All")
     OptionMenu(root, var_office, *offices).grid(row=1, column=1)
-    OptionMenu(root, var_head, *head).grid(row=1, column=2)
+    OptionMenu(root, var_head, *head).grid(row=1, column=3)
 
-    for i in range(len(temp)):
-        for j in range(len(temp[0])-1):
-            if var_office.get() == temp[i][3]:
+    def table(pending_bills):
+        for i in range(len(pending_bills)):
+            for j in range(len(pending_bills[0])-1):
                 if j==0:
-                    Checkbutton(root,text=temp[i][j], height=2, variable=temp[i][j]).grid(row=i+2, column=j)
+                    Checkbutton(root,text=pending_bills[i][j], height=1, variable=pending_bills[i][j]).grid(row=i+2, column=j)
                 else:
-                    data = Listbox(root, height=2)
-                    data.grid(row=i+2, column= j)
-                    data.insert(END, temp[i][j])
-    Button(root, text="Submit", command=post).grid(row=i+3)
+                    table_data = Listbox(root, height=1)
+                    table_data.grid(row=i+2, column=j)
+                    table_data.insert(END, pending_bills[i][j])
+
+    def clear():
+        for widget in root.winfo_children():
+            if str(type(widget)) in ["<class 'tkinter.Listbox'>", "<class 'tkinter.Checkbutton'>"]:
+                widget.destroy()
+
+    def filter():
+        table_temp = temp[:]
+        if var_office.get() == "All":
+            table(table_temp)
+        else:
+            for row in temp:
+                if var_office.get() not in row:
+                    table_temp.remove(row)
+            clear()
+            table(table_temp)
+            print(table_temp)
+    
+    filter()
+    
+    Button(root, text="Apply Filter", command=filter).grid(row=1, column=5)
+    Button(root, text="Submit", command=post).grid(row=len(temp)+3)
     root.mainloop()
 
 def reports():
