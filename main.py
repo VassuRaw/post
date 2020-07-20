@@ -162,7 +162,7 @@ def sanction():
 
     def table(pending_bills):
         for i in range(len(pending_bills)):
-            for j in range(len(pending_bills[0])-1):
+            for j in range(len(pending_bills[i])-1):
                 if j==0:
                     Checkbutton(root,text=pending_bills[i][j], height=1, variable=pending_bills[i][j]).grid(row=i+2, column=j)
                 else:
@@ -175,21 +175,21 @@ def sanction():
             if str(type(widget)) in ["<class 'tkinter.Listbox'>", "<class 'tkinter.Checkbutton'>"]:
                 widget.destroy()
 
-    def filter():
+    def filter(*args):
         table_temp = temp[:]
-        if var_office.get() == "All":
+        if var_office.get() == "All" and var_head.get() == "All":
             table(table_temp)
         else:
             for row in temp:
-                if var_office.get() not in row:
+                if var_office.get() not in row and var_head.get() not in row:
                     table_temp.remove(row)
             clear()
             table(table_temp)
-            print(table_temp)
     
     filter()
-    
-    Button(root, text="Apply Filter", command=filter).grid(row=1, column=5)
+
+    var_office.trace("w", filter)
+    var_head.trace("w", filter)
     Button(root, text="Submit", command=post).grid(row=len(temp)+3)
     root.mainloop()
 
