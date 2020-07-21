@@ -3,7 +3,7 @@ from tkinter import ttk
 from tkcalendar import *
 import sqlite3
 from datetime import datetime, date
-from autocomplete import *
+from autocomplete import AutocompleteCombobox
 
 conn = sqlite3.connect('database.db')
 db = conn.cursor()
@@ -149,7 +149,9 @@ def sanction():
         head.add(row[6])
 
     def post():
-        pass
+        for key, value in bills_dict.items():
+            if value.get():
+                print(key)
 
     root = Tk()
     
@@ -161,14 +163,22 @@ def sanction():
     OptionMenu(root, var_head, *head).grid(row=1, column=3)
 
     def table(pending_bills):
+        bills_dict = {}
+        for row in pending_bills:
+            bills_dict['var'+str(row[0])] = 0
+        
+        print(bills_dict)
+
         for i in range(len(pending_bills)):
             for j in range(len(pending_bills[i])-1):
                 if j==0:
-                    Checkbutton(root,text=pending_bills[i][j], height=1, variable=pending_bills[i][j]).grid(row=i+2, column=j)
+                    bills_dict['var'+str(pending_bills[i][j])] = IntVar()
+                    Checkbutton(root,text=pending_bills[i][j], height=1, variable=bills_dict['var'+str(pending_bills[i][j])]).grid(row=i+2, column=j)
                 else:
                     table_data = Listbox(root, height=1)
                     table_data.grid(row=i+2, column=j)
                     table_data.insert(END, pending_bills[i][j])
+        print(bills_dict)
 
     def clear():
         for widget in root.winfo_children():
