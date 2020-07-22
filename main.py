@@ -148,11 +148,6 @@ def sanction():
         offices.add(row[3])
         head.add(row[6])
 
-    def post():
-        for key, value in bills_dict.items():
-            if value.get():
-                print(key)
-
     root = Tk()
     
     var_office = StringVar(root)
@@ -164,21 +159,32 @@ def sanction():
 
     def table(pending_bills):
         bills_dict = {}
-        for row in pending_bills:
-            bills_dict['var'+str(row[0])] = 0
-        
-        print(bills_dict)
-
         for i in range(len(pending_bills)):
             for j in range(len(pending_bills[i])-1):
                 if j==0:
-                    bills_dict['var'+str(pending_bills[i][j])] = IntVar()
-                    Checkbutton(root,text=pending_bills[i][j], height=1, variable=bills_dict['var'+str(pending_bills[i][j])]).grid(row=i+2, column=j)
+                    bills_dict['var_'+str(pending_bills[i][j])] = IntVar()
+                    Checkbutton(root,text=pending_bills[i][j], height=1, variable=bills_dict['var_'+str(pending_bills[i][j])]).grid(row=i+2, column=j)
                 else:
                     table_data = Listbox(root, height=1)
                     table_data.grid(row=i+2, column=j)
                     table_data.insert(END, pending_bills[i][j])
-        print(bills_dict)
+        def post():
+            id = []
+            for key, value in bills_dict.items():
+                if value.get():
+                    id.append((key.split('_'))[-1])
+            sum = 0
+            for n in id:
+                sum += (list(db.execute("select amount from data where id = ?", n))[0][0])
+            db.execute("insert into sanctions(amount, sanction_date) values(?,?)", (sum, date.today()))
+            conn.commit()
+            sanction_id = db.lastrowid
+            for n in id:
+                db.execute("update data set sanction_id = ? where id = ?", (sanction_id, n))
+                conn.commit()
+            root.destroy()
+            sanction()
+        Button(root, text="Submit", command=post).grid(row=len(temp)+3)
 
     def clear():
         for widget in root.winfo_children():
@@ -187,11 +193,11 @@ def sanction():
 
     def filter(*args):
         table_temp = temp[:]
-        if var_office.get() == "All" and var_head.get() == "All":
+        if var_office.get() == "All":
             table(table_temp)
         else:
             for row in temp:
-                if var_office.get() not in row and var_head.get() not in row:
+                if var_office.get() not in row:
                     table_temp.remove(row)
             clear()
             table(table_temp)
@@ -200,7 +206,7 @@ def sanction():
 
     var_office.trace("w", filter)
     var_head.trace("w", filter)
-    Button(root, text="Submit", command=post).grid(row=len(temp)+3)
+    
     root.mainloop()
 
 def reports():
