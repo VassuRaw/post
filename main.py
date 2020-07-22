@@ -162,21 +162,29 @@ def sanction():
         for i in range(len(pending_bills)):
             for j in range(len(pending_bills[i])-1):
                 if j==0:
-                    bills_dict['var'+str(pending_bills[i][j])] = IntVar()
-                    Checkbutton(root,text=pending_bills[i][j], height=1, variable=bills_dict['var'+str(pending_bills[i][j])]).grid(row=i+2, column=j)
+                    bills_dict['var_'+str(pending_bills[i][j])] = IntVar()
+                    Checkbutton(root,text=pending_bills[i][j], height=1, variable=bills_dict['var_'+str(pending_bills[i][j])]).grid(row=i+2, column=j)
                 else:
                     table_data = Listbox(root, height=1)
                     table_data.grid(row=i+2, column=j)
                     table_data.insert(END, pending_bills[i][j])
-        
         def post():
+            id = []
             for key, value in bills_dict.items():
                 if value.get():
-                    print(key, value)
-        
+                    id.append((key.split('_'))[-1])
+            sum = 0
+            for n in id:
+                sum += (list(db.execute("select amount from data where id = ?", n))[0][0])
+            db.execute("insert into sanctions(amount, sanction_date) values(?,?)", (sum, date.today()))
+            conn.commit()
+            sanction_id = db.lastrowid
+            for n in id:
+                db.execute("update data set sanction_id = ? where id = ?", (sanction_id, n))
+                conn.commit()
+            root.destroy()
+            sanction()
         Button(root, text="Submit", command=post).grid(row=len(temp)+3)
-
-        print(bills_dict)
 
     def clear():
         for widget in root.winfo_children():
