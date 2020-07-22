@@ -148,11 +148,6 @@ def sanction():
         offices.add(row[3])
         head.add(row[6])
 
-    def post():
-        for key, value in bills_dict.items():
-            if value.get():
-                print(key)
-
     root = Tk()
     
     var_office = StringVar(root)
@@ -164,11 +159,6 @@ def sanction():
 
     def table(pending_bills):
         bills_dict = {}
-        for row in pending_bills:
-            bills_dict['var'+str(row[0])] = 0
-        
-        print(bills_dict)
-
         for i in range(len(pending_bills)):
             for j in range(len(pending_bills[i])-1):
                 if j==0:
@@ -178,6 +168,14 @@ def sanction():
                     table_data = Listbox(root, height=1)
                     table_data.grid(row=i+2, column=j)
                     table_data.insert(END, pending_bills[i][j])
+        
+        def post():
+            for key, value in bills_dict.items():
+                if value.get():
+                    print(key, value)
+        
+        Button(root, text="Submit", command=post).grid(row=len(temp)+3)
+
         print(bills_dict)
 
     def clear():
@@ -187,11 +185,11 @@ def sanction():
 
     def filter(*args):
         table_temp = temp[:]
-        if var_office.get() == "All" and var_head.get() == "All":
+        if var_office.get() == "All":
             table(table_temp)
         else:
             for row in temp:
-                if var_office.get() not in row and var_head.get() not in row:
+                if var_office.get() not in row:
                     table_temp.remove(row)
             clear()
             table(table_temp)
@@ -200,7 +198,7 @@ def sanction():
 
     var_office.trace("w", filter)
     var_head.trace("w", filter)
-    Button(root, text="Submit", command=post).grid(row=len(temp)+3)
+    
     root.mainloop()
 
 def reports():
