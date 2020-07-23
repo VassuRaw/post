@@ -4,6 +4,7 @@ from tkcalendar import *
 import sqlite3
 from datetime import datetime, date
 from autocomplete import AutocompleteCombobox
+from pdf import write_pdf
 
 conn = sqlite3.connect('database.db')
 db = conn.cursor()
@@ -182,6 +183,7 @@ def sanction():
             for n in id:
                 db.execute("update data set sanction_id = ? where id = ?", (sanction_id, n))
                 conn.commit()
+            write_pdf()
             root.destroy()
             sanction()
         Button(root, text="Submit", command=post).grid(row=len(temp)+3)
