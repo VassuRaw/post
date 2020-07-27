@@ -25,7 +25,7 @@ def write_pdf(data, amount):
     pdf.ln()
 
     pdf.set_font("Courier", size = 9)
-    width_list = [0,0,0,0,0]
+    width_list = [0] * len(data[0])
     for row in data:
         for i in range(len(row)):
             width = pdf.get_string_width(str(row[i]))

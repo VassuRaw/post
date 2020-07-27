@@ -180,7 +180,6 @@ def sanction():
                     id.append((key.split('_'))[-1])
             sum = 0
             for n in id:
-                print(n)
                 sum += list(db.execute(f"select amount from data where id = {n}"))[0][0]
             db.execute("insert into sanctions(amount, sanction_date) values(?,?)", (sum, date.today()))
             conn.commit()
@@ -188,11 +187,11 @@ def sanction():
             for n in id:
                 db.execute("update data set sanction_id = ? where id = ?", (sanction_id, n))
                 conn.commit()
-            print(sanction_id)
-            data = list(db.execute(f"select * from data where sanction_id={sanction_id}"))
+            data = [('Bill No.', 'Office Name', 'Vendor Name', 'Work Description', 'Cost', 'Bill Date')]
+            data.extend(list(db.execute(f"select bill_no, office_name, vendor_name, description, amount, bill_date from data where sanction_id={sanction_id}")))
             write_pdf(data, sum)
+            clear()
             table(query())
-            sanction()
         Button(root, text="Submit", command=post).grid(row=len(temp)+3)
 
     def clear():
